@@ -55,8 +55,9 @@ export const Card: FC = () => {
                     gap: '12px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     margin: '16px',
-                    position: "relative",
-                    bottom: "17%"
+                    position: 'relative',
+                    marginTop: '-40px',
+                    zIndex: 10
                 }}
             >
                 <Text>Đang tải thông tin...</Text>
@@ -75,8 +76,9 @@ export const Card: FC = () => {
                 gap: '12px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                 margin: '16px',
-                position:"relative",
-                bottom: "17%"
+                position: 'relative',
+                marginTop: '-66px',
+                zIndex: 10
             }}
         >
             <Avatar 

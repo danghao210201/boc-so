@@ -11,18 +11,22 @@ import { CalComing } from './calcoming';
 
 function HomePage() {
   return (
-    <>
+    <div className="pb-4">
       <Banner/>
       <Card/>
-      <BookButton/>
-      <CalComing/>
+      <div className="mt-4">
+        <BookButton/>
+      </div>
+      <div className="mt-4">
+        <CalComing/>
+      </div>
       {/* <SearchBar className="mx-4" /> */}
       {/* <QuickActions /> */}
       {/* <ServiceMenu /> */}
       {/* <FeaturedServices /> */}
       {/* <RemoteDiagnosis /> */}
       {/* <HealthNews /> */}
-    </>
+    </div>
   );
 }
 

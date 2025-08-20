@@ -4,7 +4,7 @@ import { Box, Text, Icon } from "zmp-ui";
 
 export const CalComing: FC = () => {
     return (
-        <Box style={{marginTop:"-25%"}} className="p-4 bg-white rounded-lg shadow-sm mx-4 my-4">
+        <Box className="p-4 bg-white rounded-lg shadow-sm mx-4 my-4">
 
             {/* Header */}
             <Text className="text-lg font-semibold text-gray-800 mb-3">
