@@ -52,3 +52,8 @@
 .zaui-sheet-content {
   max-height: calc(100vh - 200px);
 }
+
+.zaui-box-wrap{
+  clip-path: ellipse(100% 90% at 50% 0%);
+  height: 40%;
+}

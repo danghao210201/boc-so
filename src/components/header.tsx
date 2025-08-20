@@ -50,8 +50,8 @@ export default function Header() {
                   <h1 className="text-xl font-bold">
                     {getConfig((c) => c.app.title)}
                   </h1>
-                  <span>|</span>
-                  <span className="text-base">Chào bạn</span>
+                  {/* <span>|</span>
+                  <span className="text-base">Chào bạn</span> */}
                 </div>
               )}
             </div>

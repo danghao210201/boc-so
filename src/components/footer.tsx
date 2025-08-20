@@ -10,27 +10,27 @@ import { useRouteHandle } from "@/hooks";
 import FooterWave from "./icons/footer-wave";
 
 const NAV_ITEMS = [
+  // {
+  //   name: "Trang chủ",
+  //   path: "/",
+  //   icon: HomeIcon,
+  // },
   {
-    name: "Trang chủ",
-    path: "/",
-    icon: HomeIcon,
-  },
-  {
-    name: "Khám phá",
+    name: "Lịch hẹn",
     path: "/explore",
     icon: ExploreIcon,
   },
   {
-    path: "/booking",
+    path: "/",
     icon: () => (
       <BigPlusIcon className="-mt-4 shadow-lg shadow-highlight rounded-full" />
     ),
   },
-  {
-    name: "Lịch khám",
-    path: "/schedule",
-    icon: ChatIcon,
-  },
+  // {
+  //   name: "Lịch khám",
+  //   path: "/schedule",
+  //   icon: ChatIcon,
+  // },
   {
     name: "Cá nhân",
     path: "/profile",
