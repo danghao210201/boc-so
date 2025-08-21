@@ -117,6 +117,7 @@ function CounterList() {
 
   /**
    * Kiểm tra lịch sử bốc số của người dùng cho quầy cụ thể
+   * Trả về true nếu đã có số chưa hoàn thành, false nếu chưa có hoặc đã hoàn thành
    */
   const checkTicketHistory = async (counterId: number): Promise<boolean> => {
     if (!userInfo?.id) {
@@ -128,11 +129,14 @@ function CounterList() {
       const data: HistoryResponse = await response.json();
 
       if (data.success && data.data.records) {
-        // Kiểm tra xem đã bốc số cho quầy này chưa
-        const hasTicketForCounter = data.data.records.some(record =>
-          record.counter_id === counterId && record.zaloid === userInfo.id
+        // Kiểm tra xem đã bốc số cho quầy này chưa và trạng thái chưa hoàn thành
+        const hasActiveTicketForCounter = data.data.records.some(record =>
+          record.counter_id === counterId && 
+          record.zaloid === userInfo.id &&
+          record.status !== 'completed' && // Chỉ chặn nếu chưa hoàn thành
+          record.complete_time === null // Kiểm tra thêm complete_time để đảm bảo
         );
-        return hasTicketForCounter;
+        return hasActiveTicketForCounter;
       }
       return false;
     } catch (error) {
@@ -180,9 +184,9 @@ function CounterList() {
     }
 
     // Kiểm tra lịch sử bốc số
-    const hasTicket = await checkTicketHistory(counter.id);
-    if (hasTicket) {
-      showErrorModal(`Bạn đã bốc số ở ${counter.name} rồi. Mỗi quầy chỉ được bốc số một lần duy nhất.`);
+    const hasActiveTicket = await checkTicketHistory(counter.id);
+    if (hasActiveTicket) {
+      showErrorModal(`Bạn đã bốc số ở quầy ${counter.name}. Vui lòng hoàn thành thủ tục trước khi bốc số mới.`);
       return;
     }
 
