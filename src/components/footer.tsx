@@ -16,8 +16,8 @@ const NAV_ITEMS = [
   //   icon: HomeIcon,
   // },
   {
-    name: "Lịch hẹn",
-    path: "/explore",
+    name: "Lịch sử bốc số",
+    path: "/historybook",
     icon: ExploreIcon,
   },
   {
@@ -33,7 +33,7 @@ const NAV_ITEMS = [
   // },
   {
     name: "Cá nhân",
-    path: "/profile",
+    path: "/",
     icon: ProfileIcon,
   },
 ];

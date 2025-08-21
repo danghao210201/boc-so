@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FC } from "react";
 import { Box, Text, Icon } from "zmp-ui";
-import { getUserInfo } from "zmp-sdk";
+import { getUserInfo } from "zmp-sdk/apis";
 
 // Interface cho dữ liệu từ API customer_search
 interface TicketRecord {
@@ -30,7 +30,7 @@ export const CalComing: FC = () => {
     const fetchTicketData = async () => {
         try {
             setLoading(true);
-            const userInfo = await getUserInfo();
+            const { userInfo } = await getUserInfo({});
             
             if (!userInfo || !userInfo.id) {
                 setError("Không thể lấy thông tin người dùng từ Zalo");
@@ -143,7 +143,7 @@ export const CalComing: FC = () => {
                 <Text className="text-lg font-semibold text-gray-800 mb-3">
                     Lịch hẹn sắp tới
                 </Text>
-                <Text className="text-center text-gray-500">Bạn chưa có vé số nào</Text>
+                <Text className="text-center text-gray-500">Bạn chưa có lịch hẹn nào</Text>
             </Box>
         );
     }
@@ -174,7 +174,7 @@ export const CalComing: FC = () => {
                 <Box className="flex items-center gap-3">
                     <Icon icon="zi-location" size={20} className="text-gray-600" />
                     <Text className="text-gray-800 text-sm flex-1">
-                        {ticketData.department_name}
+                        Trung tâm hành chính công {ticketData.department_name}
                     </Text>
                 </Box>
                 

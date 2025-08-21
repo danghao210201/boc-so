@@ -18,6 +18,7 @@ import { ErrorBoundary } from "./components/error-boundary";
 import DepartmentDetailPage from "./pages/detail/department";
 import NewsPage from "./pages/news";
 import TabList from "./pages/home/calbook/tablist";
+import ListBook from "./pages/home/historybook/listbook";
 
 const router = createBrowserRouter(
   [
@@ -143,6 +144,14 @@ const router = createBrowserRouter(
           handle: {
             back: true,
             title: "Chọn quầy bốc số",
+          },
+        },
+        {
+          path: "/historybook",
+          element: <ListBook />,
+          handle: {
+            back: true,
+            title: "Lịch sử bốc số",
           },
         },
         {

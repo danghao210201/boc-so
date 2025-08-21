@@ -182,7 +182,7 @@ function CounterList() {
     // Kiểm tra lịch sử bốc số
     const hasTicket = await checkTicketHistory(counter.id);
     if (hasTicket) {
-      showErrorModal(`Bạn đã bốc số cho ${counter.name} rồi. Mỗi quầy chỉ được bốc số một lần duy nhất.`);
+      showErrorModal(`Bạn đã bốc số ở ${counter.name} rồi. Mỗi quầy chỉ được bốc số một lần duy nhất.`);
       return;
     }
 

@@ -18,7 +18,8 @@ export const BookButton: FC = () => {
         <Box 
             onClick={handleBookingClick}
             style={{
-                background: 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%)',
+                // background: 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%)',
+                background :"#4083F2",
                 borderRadius: '12px',
                 padding: '16px',
                 display: 'flex',
