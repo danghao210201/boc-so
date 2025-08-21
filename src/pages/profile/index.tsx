@@ -14,7 +14,7 @@ function ProfilePage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="grid grid-cols-3 pt-4 pb-5">
+      {/* <div className="grid grid-cols-3 pt-4 pb-5">
         {[
           ["Điểm thưởng", 14],
           ["Phiếu giảm giá", 2],
@@ -70,7 +70,7 @@ function ProfilePage() {
             />
           </div>
         </Section>
-      </div>
+      </div> */}
     </div>
   );
 }

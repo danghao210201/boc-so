@@ -48,9 +48,16 @@ export const CalComing: FC = () => {
             const data: CustomerSearchResponse = await response.json();
             
             if (data.success && data.data.records.length > 0) {
-                // Lấy vé số mới nhất (record đầu tiên)
-                const latestTicket = data.data.records[0];
-                setTicketData(latestTicket);
+                // Lọc bỏ các vé số đã hoàn thành
+                const activeTickets = data.data.records.filter(record => record.status !== 'completed');
+                
+                if (activeTickets.length > 0) {
+                    // Lấy số mới nhất chưa hoàn thành (record đầu tiên)
+                    const latestActiveTicket = activeTickets[0];
+                    setTicketData(latestActiveTicket);
+                } else {
+                    setTicketData(null);
+                }
             } else {
                 setTicketData(null);
             }

@@ -33,7 +33,8 @@ const NAV_ITEMS = [
   // },
   {
     name: "Cá nhân",
-    path: "/",
+    path: "/profile",
+
     icon: ProfileIcon,
   },
 ];
