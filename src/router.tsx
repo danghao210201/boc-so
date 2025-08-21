@@ -17,6 +17,7 @@ import SearchResultPage from "./pages/search";
 import { ErrorBoundary } from "./components/error-boundary";
 import DepartmentDetailPage from "./pages/detail/department";
 import NewsPage from "./pages/news";
+import TabList from "./pages/home/calbook/tablist";
 
 const router = createBrowserRouter(
   [
@@ -134,6 +135,14 @@ const router = createBrowserRouter(
           handle: {
             back: true,
             title: "Hóa đơn",
+          },
+        },
+        {
+          path: "/counter-booking",
+          element: <TabList />,
+          handle: {
+            back: true,
+            title: "Chọn quầy bốc số",
           },
         },
         {

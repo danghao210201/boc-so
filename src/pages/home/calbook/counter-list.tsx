@@ -1,0 +1,373 @@
+import React, { useState, useEffect } from 'react';
+import TicketModal from './ticket-modal';
+import { getUserInfo } from 'zmp-sdk/apis';
+import { Icon, Modal, Text } from 'zmp-ui';
+
+// Interface cho dữ liệu quầy
+interface Counter {
+  id: number;
+  name: string;
+  code: string;
+  description: string;
+  status: string;
+  staff_id: string | null;
+  queue_count: number;
+  department_id: number;
+}
+
+// Interface cho response API
+interface CountersResponse {
+  success: boolean;
+  message: string;
+  data: Counter[];
+  department: {
+    id: number;
+    code: string;
+    name: string;
+  };
+  total_counters: number;
+}
+
+// Interface cho ticket response
+interface TicketResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    queue_number: string;
+    counter_name: string;
+    queue_position: number;
+    wait_time: number;
+    status: string;
+  };
+}
+
+// Interface cho lịch sử bốc số
+interface HistoryRecord {
+  id: number;
+  queue_number: string;
+  customer_name: string;
+  zaloid: string;
+  zaloname: string;
+  tayninhid: string;
+  date: string;
+  time: string;
+  created_at: string;
+  status: string;
+  department_id: number;
+  department_name: string;
+  department_code: string;
+  counter_id: number;
+  counter_name: string;
+  counter_code: string;
+  service_id: number;
+  service_name: string;
+  service_description: string;
+  priority_level: string;
+  issue_time: string;
+  customer_phone: string;
+  call_time: string | null;
+  start_time: string | null;
+  complete_time: string | null;
+  identification_method: string;
+  status_display: string;
+}
+
+// Interface cho response API lịch sử
+interface HistoryResponse {
+  success: boolean;
+  data: {
+    records: HistoryRecord[];
+  };
+}
+
+/**
+ * Component CounterList - Hiển thị danh sách quầy với nút bốc số
+ */
+function CounterList() {
+  const [counters, setCounters] = useState<Counter[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ticketData, setTicketData] = useState<any>(null);
+  const [generatingTicket, setGeneratingTicket] = useState<number | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [selectedCounter, setSelectedCounter] = useState<Counter | null>(null);
+  const [userInfo, setUserInfo] = useState<any>(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+
+  // Fetch danh sách quầy và thông tin user khi component mount
+  useEffect(() => {
+    fetchCounters();
+    fetchUserInfo();
+  }, []);
+
+  /**
+   * Lấy thông tin người dùng từ Zalo API
+   */
+  const fetchUserInfo = async () => {
+    try {
+      const { userInfo: info } = await getUserInfo({});
+      setUserInfo(info);
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+      setError('Không thể lấy thông tin người dùng từ Zalo');
+    }
+  };
+
+  /**
+   * Kiểm tra lịch sử bốc số của người dùng cho quầy cụ thể
+   */
+  const checkTicketHistory = async (counterId: number): Promise<boolean> => {
+    if (!userInfo?.id) {
+      return false;
+    }
+
+    try {
+      const response = await fetch(`https://demo8.tayninh.gov.vn/backend/api/stats/customer_search.php?zaloid=${userInfo.id}`);
+      const data: HistoryResponse = await response.json();
+
+      if (data.success && data.data.records) {
+        // Kiểm tra xem đã bốc số cho quầy này chưa
+        const hasTicketForCounter = data.data.records.some(record =>
+          record.counter_id === counterId && record.zaloid === userInfo.id
+        );
+        return hasTicketForCounter;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error checking ticket history:', error);
+      return false;
+    }
+  };
+
+  /**
+   * Lấy danh sách quầy từ API
+   */
+  const fetchCounters = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://demo8.tayninh.gov.vn/backend/api/kiosk/get_counters.php?department_id=23');
+      const data: CountersResponse = await response.json();
+
+      if (data.success) {
+        setCounters(data.data);
+      } else {
+        setError(data.message);
+      }
+    } catch (err) {
+      setError('Không thể tải danh sách quầy');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Hiển thị modal lỗi với thông báo tùy chỉnh
+   */
+  const showErrorModal = (message: string) => {
+    setErrorMessage(message);
+    setIsErrorModalOpen(true);
+  };
+
+  /**
+   * Hiển thị modal xác nhận bốc số
+   */
+  const showConfirmModal = async (counter: Counter) => {
+    if (!userInfo?.id) {
+      showErrorModal('Không thể lấy thông tin người dùng. Vui lòng thử lại.');
+      return;
+    }
+
+    // Kiểm tra lịch sử bốc số
+    const hasTicket = await checkTicketHistory(counter.id);
+    if (hasTicket) {
+      showErrorModal(`Bạn đã bốc số cho ${counter.name} rồi. Mỗi quầy chỉ được bốc số một lần duy nhất.`);
+      return;
+    }
+
+    setSelectedCounter(counter);
+    setIsConfirmModalOpen(true);
+  };
+
+  /**
+   * Xử lý bốc số cho quầy sau khi xác nhận
+   */
+  const handleGenerateTicket = async () => {
+    if (!selectedCounter || !userInfo) {
+      alert('Không thể lấy thông tin người dùng. Vui lòng thử lại.');
+      return;
+    }
+
+    try {
+      setGeneratingTicket(selectedCounter.id);
+      setIsConfirmModalOpen(false);
+
+      const requestBody = {
+        department_id: 23,
+        counter_id: selectedCounter.id,
+        department_code: "PHT",
+        zaloid: userInfo.id,
+        zaloname: userInfo.name,
+        tayninhid: "021312332",
+        queue_rule: "n+001",
+        customer_phone: "0326685064"
+      };
+
+      const response = await fetch('https://demo6.tayninh.gov.vn/backend/api/kiosk/generate_ticket_enhanced.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      const data: TicketResponse = await response.json();
+
+      if (data.success && data.data) {
+        setTicketData({
+          ...data.data,
+          counter_name: selectedCounter.name
+        });
+        setIsModalOpen(true);
+      } else {
+        alert('Không thể bốc số: ' + data.message);
+      }
+    } catch (err) {
+      alert('Lỗi khi bốc số');
+    } finally {
+      setGeneratingTicket(null);
+      setSelectedCounter(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-gray-500">Đang tải danh sách quầy...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4">
+      <div className="space-y-4">
+        {counters.map((counter) => (
+          <div key={counter.id} className="bg-white rounded-lg shadow-md p-4 border">
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1">
+                <h3 className="font-semibold text-lg text-gray-800">{counter.name}</h3>
+                <p className="text-sm text-gray-600 mb-1">Mã: {counter.code}</p>
+                <p className="text-sm text-gray-600">{counter.description}</p>
+              </div>
+              <div className="text-right">
+                <span className={`inline-block px-2 py-1 rounded-full text-xs ${counter.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                  {counter.status === 'active' ? 'Hoạt động' : 'Bận'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-500">
+                Số người chờ: <span className="font-medium">{counter.queue_count}</span>
+              </div>
+
+              <button
+                onClick={() => showConfirmModal(counter)}
+                disabled={generatingTicket === counter.id}
+                className={`px-4 py-2 rounded-lg font-medium ${generatingTicket !== counter.id
+                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+              >
+                {generatingTicket === counter.id ? 'Đang bốc số...' : 'Bốc số'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Modal xác nhận bốc số */}
+      <Modal
+        visible={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title="Xác nhận bốc số"
+        actions={[
+          {
+            text: "Hủy",
+            close: true,
+            onClick: () => setIsConfirmModalOpen(false)
+          },
+          {
+            text: "Xác nhận",
+            highLight: true,
+            onClick: handleGenerateTicket
+          }
+        ]}
+      >
+        {selectedCounter && (
+          <div className="p-4">
+            <div className="text-center mb-4">
+              <Icon icon="zi-help-circle" className="text-blue-600 mx-auto mb-3" size={48} />
+              <Text className="text-lg font-semibold text-gray-900 mb-2">
+                Bạn có muốn bốc số cho thủ tục này không?
+              </Text>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <Text className="font-semibold text-gray-900 mb-2">{selectedCounter.name}</Text>
+              <Text className="text-sm text-gray-600">
+                {selectedCounter.description || 'Không có mô tả chi tiết'}
+              </Text>
+            </div>
+            <div className="text-center">
+              <Text className="text-xs text-gray-500">
+                Hiện tại có {selectedCounter.queue_count} người đang chờ
+              </Text>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal thông báo lỗi */}
+      <Modal
+        visible={isErrorModalOpen}
+        onClose={() => setIsErrorModalOpen(false)}
+        title="Thông báo"
+        actions={[
+          {
+            text: "Đóng",
+            close: true,
+            highLight: true,
+            onClick: () => setIsErrorModalOpen(false)
+          }
+        ]}
+      >
+        <div className="p-4">
+          <div className="text-center mb-4">
+            <Icon icon="zi-warning" className="text-orange-500 mx-auto mb-3" size={48} />
+            <Text className="text-base text-gray-900">
+              {errorMessage}
+            </Text>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal hiển thị thông tin số vừa bốc */}
+      <TicketModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        ticketData={ticketData}
+      />
+    </div>
+  );
+}
+
+export default CounterList;
